@@ -1,0 +1,31 @@
+
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Jerry Wei's Phonebook</title>
+		<h1>My Phone Book</h1>
+		<img src = "phone.png">
+	</head>
+	<body>
+		<p>
+			<hr>
+				<form name="retrieve" action="cgi-bin/phonebook2.cgi" method="get">
+					To get the contact information of a person, please enter his or her name: <br>
+					First name: <input type="text" name="firstName"> <br>
+					Last name: <input type="text" name="lastName">  <br>
+					<input type="submit" value="Submit">
+			 	</form>
+			 <br>
+			 <hr>
+			 <br>	 <form name="update" action="cgi-bin/phonebook2.cgi" method="post">
+                                        To update the phone number of a person, please enter the detailed information: <br>
+                                        First name: <input type="text" name="firstName"> <br>
+                                        Last name: <input type="text" name="lastName">  <br>
+                                        Phone Number: <input type="text" name="updatedNumber"> <br>
+					<input type="submit" value="Submit">
+                                </form>
+			 <br>
+		</p>
+	</body>
+</html>
+
