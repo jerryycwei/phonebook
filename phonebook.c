@@ -12,11 +12,14 @@ typedef struct {
 	char firstName[20];
 	char phoneNum[15];
 }phoneRecord;
-
+ 
+void addRecord(FILE *fPtr, char firstName[], char lastName[], char phoneNum[]);
+void updateRecord(FILE *fPtr, char firstName[], char lastName[], char phoneNum[]);
+void findPhoneNum(FILE *fPtr, char firstName[], char lastName[]);
 
 int main(void) {
 
-	printf("%s%c%c\n","Content-Type:text/html;charset=iso- 8859-1",13,10);
+	printf("Content-type: text/html; charset=utf-8\n\n");
 	printf("<!DOCTYPE html><html><head><title>Jerry's Phonebook</title></head><body>");
 	char firstName[20];
 	char lastName[20];
@@ -28,7 +31,7 @@ int main(void) {
 
 	//fopen opens the file; exists if file cannot be opened
 	if( (fPtr = fopen("myPhoneBook", "rb+") ) == NULL ) {
-		printf("<p> Phonebook not found. <p>");
+		printf("<p> Phonebook not found.</p>");
 
 	}else{
 		if(strcmp(getenv("REQUEST_METHOD"),"POST") == 0){
@@ -38,8 +41,8 @@ int main(void) {
 			formData = strtok(qString, "=");
 			formData = strtok(NULL, "&");
 			if(strlen(formData) > 19){
-				printf("<p> First Name exceeded allotted length. <p>");
-				return;
+				printf("<p> First Name exceeded %s allotted length. </p>", formData);
+				return 0;
 			}else{
 				strcpy(firstName, formData);
 			}
@@ -48,8 +51,8 @@ int main(void) {
 			formData = strtok(NULL, "&");
 			strcpy(lastName, formData);
 			if(strlen(formData) > 19){
-				printf("<p> Last Name exceeded allotted length. <p>");
-				return;
+				printf("<p> Last Name exceeded allotted length. </p>");
+				return 0;
 			}else{
 				strcpy(lastName, formData);
 			}
@@ -57,8 +60,8 @@ int main(void) {
 			formData = strtok(NULL, "=");
 			formData = strtok(NULL, "\0");
 			if(strlen(formData) > 14){
-				printf("<p> Phone number exceeded allotted length. <p>");
-				return;
+				printf("<p> Phone number %s exceeded allotted length. </p>", formData);
+				return 0;
 			}else{
 				strcpy(phoneNum, formData);
 			}
@@ -68,21 +71,23 @@ int main(void) {
 
 		if(strcmp(getenv("REQUEST_METHOD"), "GET") == 0){
 			strcpy(qString, getenv("QUERY_STRING"));
+
 			formData = strtok(qString, "=");
 			formData = strtok(NULL, "&");
+
 			if(strlen(formData) > 19){
-				printf("<p> First Name exceeded allotted length. <p>");
-				return;
+				printf("<p> First Name %s exceeded allotted length. </p>", formData);
+				return 0;
 			}else{
 				strcpy(firstName, formData);
 			}
 
 			formData = strtok(NULL, "=");
-			formData = strtok(NULL, "&");
-			strcpy(lastName, formData);
+			formData = strtok(NULL, "");
+			
 			if(strlen(formData) > 19){
-				printf("<p> Last Name exceeded allotted length. <p>");
-				return;
+				printf("<p> Last Name exceeded %s allotted length. </p>", formData);
+				return 0;
 			}else{
 				strcpy(lastName, formData);
 			}
@@ -90,11 +95,12 @@ int main(void) {
 		}
 	}
 	fclose(fPtr);
+	printf("<a href=\"http://www.cs.mcgill.ca/~jwei8/myPhonebook.html\">Back to Phonebook </a>");
 	printf("</body></html>");
 	return 0;
 } //end main
 
-void updateRecord(FILE *fPtr, char firstName[], char lastName [], char phoneNum){
+void updateRecord(FILE *fPtr, char firstName[], char lastName[], char phoneNum[]){
 
 	phoneRecord current;
 
@@ -107,7 +113,7 @@ void updateRecord(FILE *fPtr, char firstName[], char lastName [], char phoneNum)
 			strcpy(current.phoneNum, phoneNum);
 			fseek(fPtr, -(sizeof(phoneRecord)), SEEK_CUR);
 			fwrite(&current, sizeof(phoneRecord), 1, fPtr);
-			printf("<p>Phone Record has been updated to %s \n \n <p>", current.phoneNum);
+			printf("<p>The Phone Record for %s %s has been updated to %s</p>", current.firstName, current.lastName, current.phoneNum);
 			fileExists = 1;
 			return;
 		}
@@ -129,14 +135,14 @@ void addRecord(FILE *fPtr, char firstName[], char lastName[], char phoneNum[]){
 	rewind(fPtr);
 	int fileExists = 0;
 
-	fseek(fPtr, -sizeof(phoneRecord), 2);
+	fseek(fPtr, 0, SEEK_END);
 	fwrite(&newRecord, sizeof(phoneRecord), 1, fPtr);
-	printf("<p>Your new contact has been added.</p>");
+	printf("<p>Your new contact %s %s with phone number %s has been added.</p>", newRecord.firstName, newRecord.lastName, newRecord.phoneNum);
 	return;
 }
 
 
-void findPhoneNum(FILE *fPtr, char firstName[], char lastName []){
+void findPhoneNum(FILE *fPtr, char firstName[], char lastName[]){
 
 	phoneRecord current;
 
@@ -146,18 +152,15 @@ void findPhoneNum(FILE *fPtr, char firstName[], char lastName []){
 	while(!feof(fPtr)){
 		fread(&current, sizeof(phoneRecord), 1, fPtr);
 		if (strcmp(current.lastName, lastName) == 0 && strcmp(current.firstName, firstName) == 0){
-
-			printf("The number you are looking for is %s \n \n", current.phoneNum);
+			printf("<p>%s %s's number is %s \n \n </p>", current.firstName, current.lastName, current.phoneNum);
 			fileExists = 1;
 			return;
 		}
 	}
-
 	if(fileExists == 0){
-		printf("<p>The person you are looking for is not found. Please use Update to add a new phone number </p>");
+		printf("<p>The person %s %s you are looking for is not found. Please use Update to add a new phone number </p>", firstName, lastName);
 	}
 	return;
 }
-
 
 
